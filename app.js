@@ -17,3 +17,52 @@ function getProducts() {
 function saveProducts(products) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
 }
+
+function renderProducts() {
+  const products = getProducts();
+
+  if (products.length === 0) {
+    productList.innerHTML = `
+      <tr>
+        <td colspan="4" class="empty">No hay productos registrados.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  productList.innerHTML = products
+    .map(
+      (product) => `
+      <tr>
+        <td>${product.name}</td>
+        <td>${product.category}</td>
+        <td>RD$ ${Number(product.price).toFixed(2)}</td>
+        <td>
+          <button type="button" class="edit-btn" data-id="${product.id}">Editar</button>
+          <button type="button" class="delete-btn" data-id="${product.id}">Eliminar</button>
+        </td>
+      </tr>
+    `
+    )
+    .join("");
+}
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  errorMsg.textContent = "";
+
+  const products = getProducts();
+  const newProduct = {
+    id: Date.now().toString(),
+    name: nameInput.value.trim(),
+    category: categoryInput.value.trim(),
+    price: parseFloat(priceInput.value),
+  };
+
+  products.push(newProduct);
+  saveProducts(products);
+  form.reset();
+  renderProducts();
+});
+
+renderProducts();
