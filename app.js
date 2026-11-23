@@ -18,6 +18,13 @@ function saveProducts(products) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
 }
 
+function resetFormMode() {
+  productIdInput.value = "";
+  form.reset();
+  submitBtn.textContent = "Guardar producto";
+  cancelBtn.classList.add("hidden");
+}
+
 function renderProducts() {
   const products = getProducts();
 
@@ -52,6 +59,25 @@ form.addEventListener("submit", (e) => {
   errorMsg.textContent = "";
 
   const products = getProducts();
+  const editingId = productIdInput.value;
+
+  if (editingId) {
+    const updatedProducts = products.map((product) =>
+      product.id === editingId
+        ? {
+            ...product,
+            name: nameInput.value.trim(),
+            category: categoryInput.value.trim(),
+            price: parseFloat(priceInput.value),
+          }
+        : product
+    );
+    saveProducts(updatedProducts);
+    resetFormMode();
+    renderProducts();
+    return;
+  }
+
   const newProduct = {
     id: Date.now().toString(),
     name: nameInput.value.trim(),
@@ -63,6 +89,28 @@ form.addEventListener("submit", (e) => {
   saveProducts(products);
   form.reset();
   renderProducts();
+});
+
+productList.addEventListener("click", (e) => {
+  if (e.target.classList.contains("edit-btn")) {
+    const id = e.target.dataset.id;
+    const products = getProducts();
+    const productToEdit = products.find((p) => p.id === id);
+
+    if (productToEdit) {
+      productIdInput.value = productToEdit.id;
+      nameInput.value = productToEdit.name;
+      categoryInput.value = productToEdit.category;
+      priceInput.value = productToEdit.price;
+      submitBtn.textContent = "Actualizar producto";
+      cancelBtn.classList.remove("hidden");
+      nameInput.focus();
+    }
+  }
+});
+
+cancelBtn.addEventListener("click", () => {
+  resetFormMode();
 });
 
 renderProducts();
