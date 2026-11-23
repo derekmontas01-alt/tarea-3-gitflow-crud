@@ -106,6 +106,19 @@ productList.addEventListener("click", (e) => {
       cancelBtn.classList.remove("hidden");
       nameInput.focus();
     }
+    return;
+  }
+
+  if (e.target.classList.contains("delete-btn")) {
+    const id = e.target.dataset.id;
+    const products = getProducts().filter((p) => p.id !== id);
+    saveProducts(products);
+
+    if (productIdInput.value === id) {
+      resetFormMode();
+    }
+
+    renderProducts();
   }
 });
 
