@@ -23,6 +23,20 @@ function resetFormMode() {
   form.reset();
   submitBtn.textContent = "Guardar producto";
   cancelBtn.classList.add("hidden");
+  errorMsg.textContent = "";
+}
+
+function validateProductInput(name, category, price) {
+  if (!name) {
+    return "El nombre del producto es obligatorio.";
+  }
+  if (!category) {
+    return "La categoría es obligatoria.";
+  }
+  if (Number.isNaN(price) || price <= 0) {
+    return "El precio debe ser un número mayor que 0.";
+  }
+  return "";
 }
 
 function renderProducts() {
@@ -58,6 +72,16 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
   errorMsg.textContent = "";
 
+  const cleanName = nameInput.value.trim();
+  const cleanCategory = categoryInput.value.trim();
+  const parsedPrice = parseFloat(priceInput.value);
+
+  const validationError = validateProductInput(cleanName, cleanCategory, parsedPrice);
+  if (validationError) {
+    errorMsg.textContent = validationError;
+    return;
+  }
+
   const products = getProducts();
   const editingId = productIdInput.value;
 
@@ -66,9 +90,9 @@ form.addEventListener("submit", (e) => {
       product.id === editingId
         ? {
             ...product,
-            name: nameInput.value.trim(),
-            category: categoryInput.value.trim(),
-            price: parseFloat(priceInput.value),
+            name: cleanName,
+            category: cleanCategory,
+            price: parsedPrice,
           }
         : product
     );
@@ -80,9 +104,9 @@ form.addEventListener("submit", (e) => {
 
   const newProduct = {
     id: Date.now().toString(),
-    name: nameInput.value.trim(),
-    category: categoryInput.value.trim(),
-    price: parseFloat(priceInput.value),
+    name: cleanName,
+    category: cleanCategory,
+    price: parsedPrice,
   };
 
   products.push(newProduct);
@@ -104,6 +128,7 @@ productList.addEventListener("click", (e) => {
       priceInput.value = productToEdit.price;
       submitBtn.textContent = "Actualizar producto";
       cancelBtn.classList.remove("hidden");
+      errorMsg.textContent = "";
       nameInput.focus();
     }
     return;
